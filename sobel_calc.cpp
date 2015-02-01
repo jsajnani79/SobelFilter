@@ -71,6 +71,8 @@ void sobelCalc(Mat& img_gray, Mat& img_sobel_out)
     }
   }
 
+  
+
   // Combine the two convolutions into the output image
   for (int i=1; i<img_gray.rows; i++) {
     for (int j=1; j<img_gray.cols; j++) {
