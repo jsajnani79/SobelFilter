@@ -46,10 +46,10 @@ int mainMultiThread()
     printf("Thread creation failed: %d\n", ret);
     exit(1);
   }
-  /*if ( (ret = pthread_create( &sobel2, NULL, runSobelMT, NULL)) ){
+  if ( (ret = pthread_create( &sobel2, NULL, runSobelMT, NULL)) ){
     printf("Thread creation failed: %d\n", ret);
     exit(1);
-  }*/
+  }
 
   // Wait for them to finish
   pthread_join(sobel1, NULL);

@@ -31,6 +31,9 @@ extern pthread_t thread0_id;
 void sobelCalc(Mat& img_gray, Mat& img_sobel_out);
 void grayScale(Mat& img, Mat& img_gray_out);
 
+void grayScaleMt(Mat& img, Mat& img_gray_out, int start, int end);
+void sobelCalcMt(Mat& img_gray, Mat& img_sobel_out, int start, int end);
+
 void runSobelST();
 void *runSobelMT(void *ptr);
 #endif

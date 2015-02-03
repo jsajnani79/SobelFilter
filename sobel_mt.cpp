@@ -23,12 +23,17 @@ static ofstream results_file;
 
 // Define image mats to pass between function calls
 static Mat img_gray, img_sobel;
+
+// static Mat img_gray_top, img_gray_bot, img_sobel_top, img_sobel_bot;
+
 static float total_fps, total_ipc, total_epf;
 static float gray_total, sobel_total, cap_total, disp_total;
 static float sobel_ic_total, sobel_l1cm_total;
 pthread_barrier_t grayBarr;
 pthread_barrier_t sobelBarr;
 
+string top = "Sobel Top";
+Mat src;
 /*******************************************
  * Model: runSobelMT
  * Input: None
@@ -40,8 +45,8 @@ pthread_barrier_t sobelBarr;
 void *runSobelMT(void *ptr)
 {
   // Set up variables for computing Sobel
-  string top = "Sobel Top";
-  Mat src;
+  // string top = "Sobel Top";
+  // Mat src;
   uint64_t cap_time, gray_time, sobel_time, disp_time, sobel_l1cm, sobel_ic;
   pthread_t myID = pthread_self();
   counters_t perf_counters;
@@ -60,10 +65,10 @@ void *runSobelMT(void *ptr)
 
   // For now, we just kill the second thread. It's up to you to get it to compute
   // the other half of the image.
-  /*if (myID != thread0_id) {
+  if (myID != thread0_id) {
     pthread_barrier_wait(&endSobel);
     return NULL;
-  } */
+  } 
 
   pc_init(&perf_counters, 0);
   
@@ -82,6 +87,12 @@ void *runSobelMT(void *ptr)
     img_gray = Mat(IMG_HEIGHT, IMG_WIDTH, CV_8UC1);
     img_sobel = Mat(IMG_HEIGHT, IMG_WIDTH, CV_8UC1);
 
+    // img_gray_top = Mat(IMG_HEIGHT/2, IMG_WIDTH, CV_8UC1);
+    // img_sobel_top = Mat(IMG_HEIGHT/2, IMG_WIDTH, CV_8UC1);
+
+    // img_gray_bot = Mat(IMG_HEIGHT/2, IMG_WIDTH, CV_8UC1);
+    // img_sobel_bot = Mat(IMG_HEIGHT/2, IMG_WIDTH, CV_8UC1);
+
     pc_start(&perf_counters);
     src = cvQueryFrame(web_cam_cap);
     pc_stop(&perf_counters);
@@ -92,12 +103,14 @@ void *runSobelMT(void *ptr)
 
     // Lab1, part 2: Start parallel section
     pc_start(&perf_counters);
-    if (thread0_id == pthread_self()) {
+    if (myID == thread0_id) {
       // do top half grayscale
+      grayScaleMt(src, img_gray, 0, IMG_HEIGHT/2);
     } else {
       // do bottom half grayscale
+      grayScaleMt(src, img_gray, IMG_HEIGHT/2, IMG_HEIGHT);
     }
-    grayScale(src, img_gray);
+    // grayScale(src, img_gray);
 
     int grc = pthread_barrier_wait(&grayBarr);
     if(grc != 0 && grc != PTHREAD_BARRIER_SERIAL_THREAD)
@@ -115,12 +128,16 @@ void *runSobelMT(void *ptr)
     // add barrier to wait for threads to be finished
 
     pc_start(&perf_counters);
-    if (thread0_id == pthread_self()) {
+    if (myID == thread0_id) {
       // do top half sobelcalc
+      sobelCalcMt(img_gray, img_sobel, 0, IMG_HEIGHT/2);
     } else {
       // do bottom half sobelcalc
+      sobelCalcMt(img_gray, img_sobel, IMG_HEIGHT/2, IMG_HEIGHT);
     }
-    sobelCalc(img_gray, img_sobel);
+    // sobelCalc(img_gray, img_sobel);
+
+
     int src = pthread_barrier_wait(&sobelBarr);
     if(src != 0 && src != PTHREAD_BARRIER_SERIAL_THREAD)
     {
