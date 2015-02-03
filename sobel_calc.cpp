@@ -58,28 +58,26 @@ void sobelCalc(Mat& img_gray, Mat& img_sobel_out)
   int i, j;
   for (i=1; i<img_gray.rows; i++) {
 
-      int leftWidth = IMG_WIDTH*(i-1);
-      int rightWidth = IMG_WIDTH*(i+1);
       int center = IMG_WIDTH*(i);
+      int leftWidth = center - IMG_WIDTH;
+      int rightWidth = center + IMG_WIDTH;
 
       for (j=1; j<img_gray.cols; j++) {
 
-        // int top = j+1;
-        // int bottom = j-1;
         int bottomRight = img_gray.data[rightWidth + j-1];
         int topLeft = img_gray.data[leftWidth + j+1];
         int bLeftMinusRight = img_gray.data[leftWidth + j-1] - img_gray.data[rightWidth + j+1];
         
-        sobel_X = abs(bLeftMinusRight - bottomRight + 2*img_gray.data[leftWidth + j] - 2*img_gray.data[rightWidth + j] + topLeft);
+        sobel_X = abs(bLeftMinusRight - bottomRight + (img_gray.data[leftWidth + j]<<1) - (img_gray.data[rightWidth + j]<<1) + topLeft);
 
-        sobel_X = (sobel_X > 255) ? 255 : sobel_X;
-        img_outx.data[center + j] = sobel_X;
+        // sobel_X = (sobel_X > 255) ? 255 : sobel_X;
+        // img_outx.data[center + j] = sobel_X;
 
-        sobel_Y = abs(bLeftMinusRight - topLeft + 2*img_gray.data[center + j-1] - 2*img_gray.data[center + j+1] + bottomRight);
+        sobel_Y = abs(bLeftMinusRight - topLeft + (img_gray.data[center + j-1]<<1) - (img_gray.data[center + j+1]<<1) + bottomRight);
 
-       sobel_Y = (sobel_Y > 255) ? 255 : sobel_Y;
+       // sobel_Y = (sobel_Y > 255) ? 255 : sobel_Y;
 
-       img_outy.data[center + j] = sobel_Y;
+       // img_outy.data[center + j] = sobel_Y;
 
        sobel_total = sobel_X + sobel_Y;
        sobel_total = (sobel_total > 255) ? 255 : sobel_total;
