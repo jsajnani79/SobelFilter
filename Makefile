@@ -1,6 +1,6 @@
 # Set compiler args
 CC=g++
-CFLAGS=-Wall -c -fno-tree-vectorize -ftree-vectorizer-verbose=2 -O3 -ffast-math -fopt-info-vec-missed -mfpu=neon
+CFLAGS=-Wall -c -fno-tree-vectorize -O3 -ffast-math -fopt-info-vec-missed -mfpu=neon
 LDFLAGS=
 LDLIBS=-L /usr/lib $$(pkg-config --cflags --libs opencv) -pthread
 ifeq ($(shell arch), armv7l)
@@ -29,3 +29,6 @@ submit: clean
 	ln -s . lab1
 	tar -czf $(TAR) $(SUBMIT_FILES)
 	rm -f lab1
+
+
+# removed -ftree-vectorizer-verbose=2

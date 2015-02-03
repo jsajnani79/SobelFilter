@@ -115,7 +115,7 @@ void *runSobelMT(void *ptr)
     sobel_l1cm_total += sobel_l1cm;
     sobel_ic_total += sobel_ic;
     disp_total += disp_time;
-    total_fps += PROC_FREQ/float(cap_time + + gray_time + sobel_time);
+    total_fps += PROC_FREQ/float(cap_time + disp_time + gray_time + sobel_time);
     total_ipc += float(sobel_ic/float(gray_time + sobel_time));
 
     // Press q to exit

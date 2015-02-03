@@ -82,6 +82,8 @@ void runSobelST()
     pc_stop(&perf_counters);
 
     sobel_time = perf_counters.cycles.count;
+    sobel_l1cm += perf_counters.l1_misses.count;
+    sobel_ic += perf_counters.ic.count;
 
     pc_start(&perf_counters);
     namedWindow(top, CV_WINDOW_AUTOSIZE);
