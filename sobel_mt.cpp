@@ -29,8 +29,8 @@ static Mat img_gray, img_sobel;
 static float total_fps, total_ipc, total_epf;
 static float gray_total, sobel_total, cap_total, disp_total;
 static float sobel_ic_total, sobel_l1cm_total;
-pthread_barrier_t grayBarr;
-pthread_barrier_t sobelBarr;
+// pthread_barrier_t grayBarr;
+// pthread_barrier_t sobelBarr;
 
 string top = "Sobel Top";
 Mat src;
@@ -54,8 +54,8 @@ void *runSobelMT(void *ptr)
   // Allow the threads to contest for thread0 (controller thread) status
   pthread_mutex_lock(&thread0);
   
-  pthread_barrier_init(&grayBarr, NULL, 1);
-  pthread_barrier_init(&sobelBarr, NULL, 1);
+  // pthread_barrier_init(&grayBarr, NULL, 2);
+  // pthread_barrier_init(&sobelBarr, NULL, 2);
 
   // Check to see if this thread is first to this part of the code
   if (thread0_id == 0) {
@@ -65,10 +65,10 @@ void *runSobelMT(void *ptr)
 
   // For now, we just kill the second thread. It's up to you to get it to compute
   // the other half of the image.
-  if (myID != thread0_id) {
-    pthread_barrier_wait(&endSobel);
-    return NULL;
-  } 
+  // if (myID != thread0_id) {
+  //   pthread_barrier_wait(&endSobel);
+  //   return NULL;
+  // } 
 
   pc_init(&perf_counters, 0);
   
@@ -86,12 +86,6 @@ void *runSobelMT(void *ptr)
     // Allocate memory to hold grayscale and sobel images
     img_gray = Mat(IMG_HEIGHT, IMG_WIDTH, CV_8UC1);
     img_sobel = Mat(IMG_HEIGHT, IMG_WIDTH, CV_8UC1);
-
-    // img_gray_top = Mat(IMG_HEIGHT/2, IMG_WIDTH, CV_8UC1);
-    // img_sobel_top = Mat(IMG_HEIGHT/2, IMG_WIDTH, CV_8UC1);
-
-    // img_gray_bot = Mat(IMG_HEIGHT/2, IMG_WIDTH, CV_8UC1);
-    // img_sobel_bot = Mat(IMG_HEIGHT/2, IMG_WIDTH, CV_8UC1);
 
     pc_start(&perf_counters);
     src = cvQueryFrame(web_cam_cap);
@@ -112,12 +106,13 @@ void *runSobelMT(void *ptr)
     }
     // grayScale(src, img_gray);
 
-    int grc = pthread_barrier_wait(&grayBarr);
-    if(grc != 0 && grc != PTHREAD_BARRIER_SERIAL_THREAD)
-    {
-        printf("Could not wait on gray barrier\n");
-        exit(-1);
-    }
+    pthread_barrier_wait(&grayBarr);
+    // int grc = pthread_barrier_wait(&grayBarr);
+    // if(grc != 0 && grc != PTHREAD_BARRIER_SERIAL_THREAD)
+    // {
+    //     printf("Could not wait on gray barrier\n");
+    //     exit(-1);
+    // }
     pc_stop(&perf_counters);
 
     gray_time = perf_counters.cycles.count;
@@ -137,13 +132,13 @@ void *runSobelMT(void *ptr)
     }
     // sobelCalc(img_gray, img_sobel);
 
-
-    int src = pthread_barrier_wait(&sobelBarr);
-    if(src != 0 && src != PTHREAD_BARRIER_SERIAL_THREAD)
-    {
-        printf("Could not wait on sobel barrier\n");
-        exit(-1);
-    }
+    pthread_barrier_wait(&sobelBarr);
+    // int src = pthread_barrier_wait(&sobelBarr);
+    // if(src != 0 && src != PTHREAD_BARRIER_SERIAL_THREAD)
+    // {
+    //     printf("Could not wait on sobel barrier\n");
+    //     exit(-1);
+    // }
     pc_stop(&perf_counters);
 
     sobel_time = perf_counters.cycles.count;
@@ -197,8 +192,8 @@ void *runSobelMT(void *ptr)
 
   cvReleaseCapture(&web_cam_cap);
   results_file.close();
-  pthread_barrier_destroy(&grayBarr);
-  pthread_barrier_destroy(&sobelBarr);
-  pthread_barrier_wait(&endSobel);
+  // pthread_barrier_destroy(&grayBarr);
+  // pthread_barrier_destroy(&sobelBarr);
+  // pthread_barrier_wait(&endSobel);
   return NULL;
 }
